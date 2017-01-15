@@ -1,12 +1,13 @@
 mod memory;
 mod helpers;
+mod temperature;
 
 
 fn main() {
-    let res = helpers::read_file_to_string("/sys/class/thermal/thermal_zone0/temp".to_string());
-    match res {
+    let temp = temperature::temperature();
+    match temp {
         None => println!("Could not read temperature"),
-        _ => println!("{}", res.unwrap()),
+        _ => println!("Temperature: {}", temp.unwrap())
     }
 
     let mem = memory::read_usage();

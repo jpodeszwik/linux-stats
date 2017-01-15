@@ -1,6 +1,18 @@
+use std::fmt;
 use helpers;
 
-pub fn temperature() -> Option<i32> {
+pub struct TemperatureInfo {
+    degree: i32,
+    unit: String
+}
+
+impl fmt::Display for TemperatureInfo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "degree: {}, unit: {}", self.degree, self.unit)
+    }
+}
+
+pub fn temperature() -> Option<TemperatureInfo> {
     let res = helpers::read_file_to_string("/sys/class/thermal/thermal_zone0/temp".to_string());
     match res {
         None => {
@@ -16,7 +28,7 @@ pub fn temperature() -> Option<i32> {
                 return Option::None
             }
 
-            return Option::Some(num.unwrap() / 1000)
+            return Option::Some(TemperatureInfo { degree: num.unwrap() / 1000, unit: "Celsius".to_string() })
         },
     }
 }

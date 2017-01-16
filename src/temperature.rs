@@ -13,7 +13,7 @@ impl fmt::Display for TemperatureInfo {
 }
 
 pub fn temperature() -> Option<TemperatureInfo> {
-    let res = helpers::read_file_to_string("/sys/class/thermal/thermal_zone0/temp".to_string());
+    let res = helpers::read_file_to_string("/sys/class/thermal/thermal_zone0/temp");
     match res {
         None => {
             println!("Could not read temperature");

@@ -12,7 +12,7 @@ fn main() {
 
     let mem = memory::read_usage();
     match mem {
-        None => println!("Could not read memory"),
-        _ => println!("{}", mem.unwrap()),
+        Err(err) => println!("Could not read memory: {}", err),
+        Ok(val) => println!("{}", val),
     }
 }

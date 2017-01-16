@@ -1,6 +1,8 @@
 use std::fmt;
 use helpers;
 
+static TEMPERATURE_FILE: &'static str = "/sys/class/thermal/thermal_zone0/temp";
+
 pub struct TemperatureInfo {
     degree: i32,
     unit: String
@@ -13,7 +15,7 @@ impl fmt::Display for TemperatureInfo {
 }
 
 pub fn temperature() -> Option<TemperatureInfo> {
-    let res = helpers::read_file_to_string("/sys/class/thermal/thermal_zone0/temp");
+    let res = helpers::read_file_to_string(TEMPERATURE_FILE);
     match res {
         None => {
             println!("Could not read temperature");

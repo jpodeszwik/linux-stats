@@ -6,8 +6,8 @@ mod temperature;
 fn main() {
     let temp = temperature::temperature();
     match temp {
-        None => println!("Could not read temperature"),
-        _ => println!("Temperature: {}", temp.unwrap())
+        Err(err) => println!("Could not read temperature: {}", err),
+        Ok(val) => println!("Temperature: {}", val)
     }
 
     let mem = memory::read_usage();

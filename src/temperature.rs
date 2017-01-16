@@ -14,23 +14,14 @@ impl fmt::Display for TemperatureInfo {
     }
 }
 
-pub fn temperature() -> Option<TemperatureInfo> {
-    let res = helpers::read_file_to_string(TEMPERATURE_FILE);
-    match res {
-        None => {
-            println!("Could not read temperature");
-            Option::None
-        },
-        _ => {
-            let mut str_res = res.unwrap();
-            str_res.pop();
-            let num = str_res.parse::<i32>();
-            if num.is_err() {
-                println!("Error decoding int");
-                return Option::None
-            }
-
-            return Option::Some(TemperatureInfo { degree: num.unwrap() / 1000, unit: "Celsius".to_string() })
-        },
-    }
+pub fn temperature() -> Result<TemperatureInfo, String> {
+    helpers::read_file_to_string(TEMPERATURE_FILE)
+        .and_then(|res| {
+            res.trim()
+                .parse::<i32>()
+                .map_err(|err| err.to_string())
+        })
+        .map(|num|
+            TemperatureInfo { degree: num / 1000, unit: "Celsius".to_string() }
+        )
 }

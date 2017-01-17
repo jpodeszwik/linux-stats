@@ -36,11 +36,11 @@ pub fn read_usage() -> Result<MemoryInfo, String> {
             }
 
             let info = MemoryInfo {
-                mem_total: (*stats.get(&"MemTotal").unwrap()).to_string(),
-                mem_free: (*stats.get(&"MemFree").unwrap()).to_string(),
-                mem_available: (*stats.get(&"MemAvailable").unwrap()).to_string(),
-                buffers: (*stats.get(&"Buffers").unwrap()).to_string(),
-                cached: (*stats.get(&"Cached").unwrap()).to_string()
+                mem_total: (stats.get(&"MemTotal").map(|s| *s).unwrap_or("0 kB")).to_string(),
+                mem_free: (stats.get(&"MemFree").map(|s| *s).unwrap_or("0 kB")).to_string(),
+                mem_available: (stats.get(&"MemAvailable").map(|s| *s).unwrap_or("0 kB")).to_string(),
+                buffers: (stats.get(&"Buffers").map(|s| *s).unwrap_or("0 kB")).to_string(),
+                cached: (stats.get(&"Cached").map(|s| *s).unwrap_or("0 kB")).to_string()
             };
 
             Ok(info)

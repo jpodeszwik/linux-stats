@@ -1,11 +1,26 @@
 use helpers;
 use std::collections::HashMap;
 use std::ops::Deref;
+use std::fmt;
 
 static MEMORY_FILE: &'static str = "/proc/meminfo";
 
+pub struct MemoryInfo {
+    mem_total: String,
+    mem_free: String,
+    mem_available: String,
+    buffers: String,
+    cached: String
+}
 
-pub fn read_usage() -> Result<String, String> {
+impl fmt::Display for MemoryInfo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "mem_total: {}, mem_free: {}, mem_available: {}, buffers: {}, cached: {}",
+               self.mem_total, self.mem_free, self.mem_available, self.buffers, self.cached)
+    }
+}
+
+pub fn read_usage() -> Result<MemoryInfo, String> {
     let content = helpers::read_file_to_string(MEMORY_FILE);
     match content {
         Err(err) => Err(err),
@@ -20,7 +35,15 @@ pub fn read_usage() -> Result<String, String> {
                 }
             }
 
-            Ok((*stats.get(&"MemTotal").unwrap()).to_string())
+            let info = MemoryInfo {
+                mem_total: (*stats.get(&"MemTotal").unwrap()).to_string(),
+                mem_free: (*stats.get(&"MemFree").unwrap()).to_string(),
+                mem_available: (*stats.get(&"MemAvailable").unwrap()).to_string(),
+                buffers: (*stats.get(&"Buffers").unwrap()).to_string(),
+                cached: (*stats.get(&"Cached").unwrap()).to_string()
+            };
+
+            Ok(info)
         }
     }
 }

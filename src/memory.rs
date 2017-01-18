@@ -20,6 +20,16 @@ impl fmt::Display for MemoryInfo {
     }
 }
 
+trait GetStr {
+    fn get_str(&self, &str) -> Option<&str>;
+}
+
+impl<'a> GetStr for HashMap<&'a str, &'a str> {
+    fn get_str(&self, key: &str) -> Option<&str> {
+        self.get(&key).map(|s| *s)
+    }
+}
+
 pub fn read_usage() -> Result<MemoryInfo, String> {
     let content = helpers::read_file_to_string(MEMORY_FILE);
     match content {
@@ -36,11 +46,11 @@ pub fn read_usage() -> Result<MemoryInfo, String> {
             }
 
             let info = MemoryInfo {
-                mem_total: (stats.get(&"MemTotal").map(|s| *s).unwrap_or("0 kB")).to_string(),
-                mem_free: (stats.get(&"MemFree").map(|s| *s).unwrap_or("0 kB")).to_string(),
-                mem_available: (stats.get(&"MemAvailable").map(|s| *s).unwrap_or("0 kB")).to_string(),
-                buffers: (stats.get(&"Buffers").map(|s| *s).unwrap_or("0 kB")).to_string(),
-                cached: (stats.get(&"Cached").map(|s| *s).unwrap_or("0 kB")).to_string()
+                mem_total: (stats.get_str("MemTotal").unwrap_or("0 kB")).to_string(),
+                mem_free: (stats.get_str("MemFree").unwrap_or("0 kB")).to_string(),
+                mem_available: (stats.get_str("MemAvailable").unwrap_or("0 kB")).to_string(),
+                buffers: (stats.get_str("Buffers").unwrap_or("0 kB")).to_string(),
+                cached: (stats.get_str("Cached").unwrap_or("0 kB")).to_string()
             };
 
             Ok(info)

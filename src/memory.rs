@@ -6,11 +6,11 @@ use std::fmt;
 static MEMORY_FILE: &'static str = "/proc/meminfo";
 
 pub struct MemoryInfo {
-    mem_total: String,
-    mem_free: String,
-    mem_available: String,
-    buffers: String,
-    cached: String
+    mem_total: i64,
+    mem_free: i64,
+    mem_available: i64,
+    buffers: i64,
+    cached: i64
 }
 
 impl fmt::Display for MemoryInfo {
@@ -20,13 +20,16 @@ impl fmt::Display for MemoryInfo {
     }
 }
 
-trait GetStr {
-    fn get_str(&self, &str) -> Option<&str>;
+trait GetSize {
+    fn get_size(&self, &str) -> i64;
 }
 
-impl<'a> GetStr for HashMap<&'a str, &'a str> {
-    fn get_str(&self, key: &str) -> Option<&str> {
-        self.get(&key).map(|s| *s)
+impl<'a> GetSize for HashMap<&'a str, &'a str> {
+    fn get_size(&self, key: &str) -> i64 {
+        self.get(&key)
+            .and_then(|s| s.split(' ').next())
+            .map(|s| s.parse::<i64>().unwrap_or(0_i64))
+            .unwrap_or(0_i64) * 1024
     }
 }
 
@@ -46,11 +49,11 @@ pub fn read_usage() -> Result<MemoryInfo, String> {
             }
 
             let info = MemoryInfo {
-                mem_total: (stats.get_str("MemTotal").unwrap_or("0 kB")).to_string(),
-                mem_free: (stats.get_str("MemFree").unwrap_or("0 kB")).to_string(),
-                mem_available: (stats.get_str("MemAvailable").unwrap_or("0 kB")).to_string(),
-                buffers: (stats.get_str("Buffers").unwrap_or("0 kB")).to_string(),
-                cached: (stats.get_str("Cached").unwrap_or("0 kB")).to_string()
+                mem_total: stats.get_size("MemTotal"),
+                mem_free: stats.get_size("MemFree"),
+                mem_available: stats.get_size("MemAvailable"),
+                buffers: stats.get_size("Buffers"),
+                cached: stats.get_size("Cached")
             };
 
             Ok(info)

@@ -10,6 +10,7 @@ use rustc_serialize::json;
 mod memory;
 mod helpers;
 mod temperature;
+mod load;
 
 
 fn main() {
@@ -29,5 +30,13 @@ fn main() {
             Ok(val) => Ok(Response::with((Status::Ok, json::encode(&val).unwrap())))
         }
     }, "memory");
-    Iron::new(router).http("localhost:3000").unwrap();
+
+    router.get("/load", |_: &mut Request| -> IronResult<Response> {
+        let mem = load::load();
+        match mem {
+            Err(err) => Ok(Response::with((Status::InternalServerError, err))),
+            Ok(val) => Ok(Response::with((Status::Ok, json::encode(&val).unwrap())))
+        }
+    }, "load");
+    Iron::new(router).http("localhost:3001").unwrap();
 }

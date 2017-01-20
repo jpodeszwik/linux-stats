@@ -5,6 +5,7 @@ use std::fmt;
 
 static MEMORY_FILE: &'static str = "/proc/meminfo";
 
+#[derive(RustcEncodable)]
 pub struct MemoryInfo {
     mem_total: i64,
     mem_free: i64,

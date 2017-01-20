@@ -3,6 +3,7 @@ use helpers;
 
 static TEMPERATURE_FILE: &'static str = "/sys/class/thermal/thermal_zone0/temp";
 
+#[derive(RustcEncodable)]
 pub struct TemperatureInfo {
     degree: i32,
     unit: String

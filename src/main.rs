@@ -1,18 +1,33 @@
+extern crate iron;
+extern crate router;
+extern crate rustc_serialize;
+
+use router::Router;
+use iron::prelude::*;
+use iron::status::Status;
+use rustc_serialize::json;
+
 mod memory;
 mod helpers;
 mod temperature;
 
 
 fn main() {
-    let temp = temperature::temperature();
-    match temp {
-        Err(err) => println!("Could not read temperature: {}", err),
-        Ok(val) => println!("Temperature:\n{}", val)
-    }
+    let mut router = Router::new();
+    router.get("/temperature", |_: &mut Request| -> IronResult<Response> {
+        let temp = temperature::temperature();
+        match temp {
+            Err(err) => Ok(Response::with((Status::InternalServerError, err))),
+            Ok(val) => Ok(Response::with((Status::Ok, json::encode(&val).unwrap())))
+        }
+    }, "temperature");
 
-    let mem = memory::read_usage();
-    match mem {
-        Err(err) => println!("Could not read memory: {}", err),
-        Ok(val) => println!("Memory:\n{}", val),
-    }
+    router.get("/memory", |_: &mut Request| -> IronResult<Response> {
+        let mem = memory::read_usage();
+        match mem {
+            Err(err) => Ok(Response::with((Status::InternalServerError, err))),
+            Ok(val) => Ok(Response::with((Status::Ok, json::encode(&val).unwrap())))
+        }
+    }, "memory");
+    Iron::new(router).http("localhost:3000").unwrap();
 }

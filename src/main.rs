@@ -14,6 +14,7 @@ mod memory;
 mod helpers;
 mod temperature;
 mod load;
+mod uptime;
 
 
 fn main() {
@@ -41,6 +42,14 @@ fn main() {
             Ok(val) => Ok(Response::with((Status::Ok, json::encode(&val).unwrap())))
         }
     }, "load");
+
+    router.get("/uptime", |_: &mut Request| -> IronResult<Response> {
+        let uptime = uptime::uptime();
+        match uptime {
+            Err(err) => Ok(Response::with((Status::InternalServerError, err))),
+            Ok(val) => Ok(Response::with((Status::Ok, json::encode(&val).unwrap())))
+        }
+    }, "uptime");
 
     router.any("/*", |_: &mut Request| -> IronResult<Response> {
         Ok(Response::with((Status::NotFound, "Page not found")))

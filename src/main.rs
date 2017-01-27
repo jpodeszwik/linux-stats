@@ -42,18 +42,13 @@ fn main() {
         }
     }, "load");
 
-    let bind_str = env::var("BIND_STR");
+    let router = env::var("BIND_STR").map_err(|e| e.to_string())
+        .and_then(|s| SocketAddr::from_str(s.as_str()).map_err(|e| e.to_string()))
+        .and_then(|s| Iron::new(router).http(s).map_err(|e| e.to_string()));
 
-    match bind_str {
-        Err(_) => println!("Could not read bind str"),
-        Ok(val) => {
-            match SocketAddr::from_str(val.as_str()) {
-                Err(_) => println!("Could not parse BIND_STR"),
-                Ok(val) => {
-                    Iron::new(router).http(val).unwrap();
-                    println!("Ok!")
-                }
-            }
-        }
+
+    match router {
+        Err(err) => println!("Error: {}", err),
+        Ok(_) => { /* Router unwrapped */ }
     }
 }

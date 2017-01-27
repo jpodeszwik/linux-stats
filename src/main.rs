@@ -42,6 +42,10 @@ fn main() {
         }
     }, "load");
 
+    router.any("/*", |_: &mut Request| -> IronResult<Response> {
+        Ok(Response::with((Status::NotFound, "Page not found")))
+    }, "default");
+
     let router = env::var("BIND_STR").map_err(|e| e.to_string())
         .and_then(|s| SocketAddr::from_str(s.as_str()).map_err(|e| e.to_string()))
         .and_then(|s| Iron::new(router).http(s).map_err(|e| e.to_string()));

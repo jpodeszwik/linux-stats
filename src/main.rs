@@ -6,6 +6,9 @@ use router::Router;
 use iron::prelude::*;
 use iron::status::Status;
 use rustc_serialize::json;
+use std::env;
+use std::net::SocketAddr;
+use std::str::FromStr;
 
 mod memory;
 mod helpers;
@@ -38,5 +41,19 @@ fn main() {
             Ok(val) => Ok(Response::with((Status::Ok, json::encode(&val).unwrap())))
         }
     }, "load");
-    Iron::new(router).http("localhost:3001").unwrap();
+
+    let bind_str = env::var("BIND_STR");
+
+    match bind_str {
+        Err(_) => println!("Could not read bind str"),
+        Ok(val) => {
+            match SocketAddr::from_str(val.as_str()) {
+                Err(_) => println!("Could not parse BIND_STR"),
+                Ok(val) => {
+                    Iron::new(router).http(val).unwrap();
+                    println!("Ok!")
+                }
+            }
+        }
+    }
 }

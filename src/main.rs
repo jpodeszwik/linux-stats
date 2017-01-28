@@ -25,11 +25,11 @@ impl iron::middleware::Handler for RequestLogger {
         let resp = self.router.handle(r);
         match resp {
             Err(err) => {
-                println!("ERROR; method: {}; url: {}", r.method, r.url);
+                println!("ERROR; method: {}; url: {}; err: {}", r.method, r.url, err);
                 Err(err)
             },
             Ok(resp) => {
-                let status = resp.status.unwrap();
+                let status = resp.status.unwrap().to_u16();
                 println!("OK; method: {}; url: {}, status: {}", r.method, r.url, status);
                 Ok(resp)
             }

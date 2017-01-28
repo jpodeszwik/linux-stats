@@ -1,24 +1,16 @@
 use helpers;
 use std::collections::HashMap;
 use std::ops::Deref;
-use std::fmt;
 
 static MEMORY_FILE: &'static str = "/proc/meminfo";
 
-#[derive(RustcEncodable)]
+#[derive(RustcEncodable, Debug)]
 pub struct MemoryInfo {
     mem_total: i64,
     mem_free: i64,
     mem_available: i64,
     buffers: i64,
     cached: i64
-}
-
-impl fmt::Display for MemoryInfo {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "mem_total: {}, mem_free: {}, mem_available: {}, buffers: {}, cached: {}",
-               self.mem_total, self.mem_free, self.mem_available, self.buffers, self.cached)
-    }
 }
 
 trait GetSize {

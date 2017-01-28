@@ -1,20 +1,12 @@
-use std::fmt;
 use helpers;
 
 static LOAD_FILE: &'static str = "/proc/loadavg";
 
-#[derive(RustcEncodable)]
+#[derive(RustcEncodable, Debug)]
 pub struct LoadInfo {
     one: f64,
     five: f64,
     fifteen: f64
-}
-
-impl fmt::Display for LoadInfo {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "one: {}, five: {}, fifteen: {}",
-               self.one, self.five, self.fifteen)
-    }
 }
 
 pub fn load() -> Result<LoadInfo, String> {

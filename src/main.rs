@@ -16,6 +16,26 @@ mod temperature;
 mod load;
 mod uptime;
 
+struct RequestLogger {
+    router: Router
+}
+
+impl iron::middleware::Handler for RequestLogger {
+    fn handle(&self, r: &mut Request) -> IronResult<Response> {
+        let resp = self.router.handle(r);
+        match resp {
+            Err(err) => {
+                println!("ERROR; method: {}; url: {}", r.method, r.url);
+                Err(err)
+            },
+            Ok(resp) => {
+                let status = resp.status.unwrap();
+                println!("OK; method: {}; url: {}, status: {}", r.method, r.url, status);
+                Ok(resp)
+            }
+        }
+    }
+}
 
 fn main() {
     let mut router = Router::new();
@@ -55,12 +75,14 @@ fn main() {
         Ok(Response::with((Status::NotFound, "Page not found")))
     }, "default");
 
-    let router = env::var("BIND_STR").map_err(|e| e.to_string())
+    let request_wrapper = RequestLogger { router: router };
+
+    let listener = env::var("BIND_STR").map_err(|e| e.to_string())
         .and_then(|s| SocketAddr::from_str(s.as_str()).map_err(|e| e.to_string()))
-        .and_then(|s| Iron::new(router).http(s).map_err(|e| e.to_string()));
+        .and_then(|s| Iron::new(request_wrapper).http(s).map_err(|e| e.to_string()));
 
 
-    match router {
+    match listener {
         Err(err) => println!("Error: {}", err),
         Ok(_) => { /* Router unwrapped */ }
     }
